@@ -1,0 +1,276 @@
+---
+title: "STEM Fellowship R Workshop"
+author: "Alin Morariu"
+date: "30/10/2019"
+output: pdf_document
+---
+
+# Welcome! 
+
+This is a 2 part workshop focusing on key coding skills in R that will be useful in a research setting. Topics covered will include 
+
+* R objects
+* Basic operations
+* Introduction to knitr
+* Introduction to the tidyverse
+* Data wrangling (via dplyr)
+* Data visualization (via ggplot2)
+* Introduction to hypothesis testing 
+* Linear models (if time permits)
+* Export our results to a PDF via an RMarkdown file 
+
+### What is R? 
+
+R is a statistical program language that gives you a means of computing key values and plots to analyze your data. We will be using an IDE overlayed onto R called R Studio which provies a clean, intuitive environment for you to work in. R Studio has 4 main panes - Source file, Console, Environment, and Files. 
+
+### R objects
+
+There are many ways to store data/information in R. Here are a few of the key objects we will come across in our work. 
+
+```{r R Objects}
+# storing a number 
+x0 <- 42 
+class(x0)
+```
+
+Note how x0 now appears in your environment and points to the value 42 stored in memory.
+
+```{r R Objects ctd.}
+# can store multiple values in the same memory slot 
+v0 <- c(41, x0, 43)
+v0
+# access specific values of a vector 
+v0[2]
+v0[2:3]
+# can store multiple vectors in a data frame 
+df0 <- data.frame(v0, 2*v0, v0/2)
+df0
+```
+
+### R operations 
+
+This makes for a nice transition into some basic operations you can do with R. It is helpful to think of R as an incredibly powerful calculator. 
+
+```{r R operations}
+# addition and subtraction 
+x0 + x0
+x0 - 42
+
+# multiplication and subtraction 
+2*x0
+x0*3 
+
+2*v0
+
+2*df0 # note at how the scalar is applied 
+```
+
+Some times we need to multiply large matricies in order to compute certain values quickly. Fortunately, R provides functions dedicated to doing just this.
+
+```{r Matrix operations}
+# define a 3x3 matrix
+mt0 <- as.matrix(df0)
+mt0
+
+# transpose
+t(mt0)
+
+# vector multiplication 
+
+# element wise 
+v0 * v0 
+# dot product 
+v0 %*% v0
+# vector product
+v0 %*% t(v0)
+# matrix product 
+mt0 %*% mt0 
+```
+With that last set of operations, we must be careful to ensure that the dimensions of the vectors make sense with respect to the products. 
+
+### Functions
+
+Sometimes we want to do a defined set of operations and this is where user functions come in. R contains a set of built in functions which come in handy, but we can also define our own functions.
+
+```{r Functions}
+# built in function example 
+sum(1,2,3)
+sum(v0)
+
+my_sum <- function(vector){
+  # this function will sum the first and last numbers in a vector 
+  x <- vector[1] + vector[length(vector)]
+  return(x)
+}
+
+my_sum(v0) # can you think of a case where this function will fail? 
+```
+
+### Packages 
+
+Since base R could not possilbe incorporate all functions anyone has ever made, users will sometimes "package" their user defined functions into an object called a package. Packages are simply scripts of code which you can import into your work space and take advantage of in order to simplify your work. The advantage to packages is that all of their source code is hidden from you, the user, but you get access to a wide array of very powerful and often highly optimized functions (more on this later). 
+
+```{r Installing packages, eval=FALSE}
+# before using a package, you need to install it
+install.packages("tidyverse")
+install.packages("knitr)
+```
+
+The first time you ever want to use a package, you must install it so R has the source code. From this point on, any time you want to use the package all you need to do is call it so R knows to activate this code via the library function
+
+```{r Load packages}
+library(tidyverse)
+library(knitr)
+```
+
+Today we will focus on the usage of two key R packages - tidyverse and knitr. 
+
+### Tidyverse
+
+The tidyverse is a conglometration of smaller packages created with the goal of simplifying many of R's data science capabilities as well as taking advantage of modern computing power through highly efficient back end code (you do NOT need to worry about this and this is why having it in a package is so convenient). Within the tidyverse, we will focus on 2 main sub-packages. Namely, dplyr (a package used for data wrangling and cleaning), and ggplot2 (a packaged used for data visualization and creation of plots). 
+
+### Knitr
+
+Knitr will be particularly useful to us since it will allow us to export our work from these .Rmd files into usable, and sometimes publishable, documents. The RMarkdown documents can be exported to HTML, PDF, or Word documents making them very useful when working on a project. The alternative is to write all of your code in an R script (a .R file), and work with the outputted objects individually (for example, you can save any of your plots as .jpeg or .png files which you can then slot into your figures in another document). I recommend using the RMarkdown setting due to it's ability to handle inline code via the code chunks you've been seeing so far. 
+
+# Working with Data
+
+Now that we have a basic understanding what R is capable of doing at an "atomic" level, let us pull in some data and do a low level analysis. We will begin by cleaning the data first, then plotting the data.
+
+### Cleaning 
+
+```{r Loading data}
+trees <- datasets::trees
+
+# preview our data
+head(trees)
+
+# another option
+glimpse(trees)
+```
+Note that these two functions do essentially the same thing. In some cases one is better than the other but that tends to not be clear until you try it. As a rule of thumb, if you have a lot of colummns in your data, you probably want to be using glimpse since it shows all of the column names where head might overflow onto several pages. 
+
+Now let's do some manipulations to our data. 
+
+```{r Data manipulations}
+trees <- tbl_df(trees) # coerce dataframe into a tbl 
+
+# find the min and max for the girth 
+dplyr::summarise(trees, minimum = min(Girth))
+dplyr::summarise_each(trees, funs(min))
+
+# many other function available
+dplyr::summarise_each(trees, funs(IQR))
+```
+**Exercise 1:** find the maximum of each column in the trees dataset. 
+
+One of the nice things about these packages, is that they come with a cheatsheet which is very helpful to have nearby. You can find them via Google. [Link for dplyr cheatsheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf). Take a look at this cheatsheet and try some of the functions.
+
+The three that I find especially useful are select, filter, and mutate. While select and filter are self-explanatory, mutate is not. The mutate function in dplyr performs some operation and appends a colummn to the end of your data table. Let's see some examples. 
+
+```{r Data manipulations ctd}
+# take note of the piping operator
+
+# pipes pass the output of the commands preceding it into the first 
+# argument of the next command 
+
+trees %>% dplyr::mutate(Girth_cm = Girth*2.23)
+
+trees %>% 
+  dplyr::mutate(Girth_cm = round(Girth*2.23,2)) %>% 
+  dplyr::select(Height, Volume, Girth_cm)
+
+trees %>% 
+  dplyr::mutate(Girth_cm = round(Girth*2.23,2)) %>% 
+  dplyr::select(Height, Volume, Girth_cm) %>% 
+  dplyr::filter(Girth_cm > 33)
+
+```
+
+Note thatthe results displayed above are NOT stored into memory but merely displayed. If we wanted to store them and use them later, we need to use the assignment operator and store it to a variable in memory. 
+
+```{r Data Manipulation 3}
+selected_trees <- trees %>% 
+  dplyr::mutate(Girth_cm = round(Girth*2.23,2)) %>% 
+  dplyr::select(Height, Volume, Girth_cm) %>% 
+  dplyr::filter(Girth_cm > 33)
+
+selected_trees # same as above 
+```
+
+**Exercise 2:** Using the dplyr cheatsheet, create a data table containing only the trees which have a girth greater than 20cm and less than 36cm. Arrange them in ascending order based on the Height. 
+
+```{r Solution Ex2, echo=FALSE}
+solution <- trees %>% 
+    dplyr::mutate(Girth_cm = round(Girth*2.23,2)) %>% 
+  dplyr::select(Height, Volume, Girth_cm) %>% 
+  dplyr::filter(Girth_cm > 20) %>% 
+  dplyr::filter(Girth_cm < 36) %>% 
+  dplyr::arrange(Height)
+
+solution
+```
+
+### Plotting 
+
+Now that we have cleaned our data to our subjects of interest we can start plotting this data to get some more insight into what exactly is happening. We will be using ggplot2, a layer based graphical tool based on the Grammar of Graphics guidelines. The way it works is by adding data, then mapping variables to aesthetic elements of the plot like the “x-axis” or the “colour”; then you tell it what to draw (points, lines, bars, etc); then you annotate the plot with axis labels and other things (this description is credited to [Alex Stringer's](https://awstringer1.github.io/ssu-r-workshop/ssu-r-workshop.html) R workshop). So let's do exactly that. We will plot this stepwise. 
+
+```{r}
+plot1 <- solution %>% ggplot(aes(x = Height))
+plot1
+
+# add my favourite theme 
+plot1 <- plot1 + theme_minimal()
+plot1 # much better :D 
+```
+
+Now let's start making some plots. The first one we will look at is a bar graph.
+```{r}
+plot1 <- plot1 + geom_histogram(binwidth = 3, fill = "gold", colour = "navy", alpha = 0.7)
+plot1
+```
+
+Let's add some labels to our graph.
+
+```{r}
+plot1 <- plot1 + labs(title = "Histogram of Selected Tree Heights",
+  xlab = "Height (inches)")
+plot1
+```
+
+The way we've been doing it has been by adding everything layer by layer. This can be a bit tedious and hence can be avoided by taking a one shot approach. The full code for the histogram above is: 
+
+```{r Histogram, eval = FALSE}
+plot1 <- solution %>% ggplot(aes(x = Height)) + 
+  geom_histogram(binwidth = 3, fill = "gold", colour = "navy", alpha = 0.7) + 
+  labs(title = "Histogram of Selected Tree Heights",
+  xlab = "Height (inches)") + 
+  theme_minimal()
+
+plot1
+```
+
+We now turn our attention to line graphs. In this case, we will take the one-shot approach to producing this graph. 
+
+```{r Line Graph}
+plot2 <- solution %>% 
+  ggplot(aes(x = Height, y = Volume)) +
+  geom_point(colour = "navy", alpha = 0.7) + 
+  labs(title = "Volume of CO2 vs. Height of Trees",
+       x = "Height (inches)",
+       y = "Volume of CO2 (m^3)") +
+  geom_smooth(method='lm', colour = "gold")+
+  theme_minimal()
+
+plot2 <- solution %>% 
+  ggplot(aes(x = Height, y = Volume)) +
+  geom_jitter(colour = "navy", alpha = 0.7) + 
+  labs(title = "Volume of CO2 vs. Height of Trees",
+       x = "Height (inches)",
+       y = "Volume of CO2 (m^3)") +
+  geom_smooth(method='lm', colour = "gold")+
+  theme_minimal()
+
+plot2
+```
+

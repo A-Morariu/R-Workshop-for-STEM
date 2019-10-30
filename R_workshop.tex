@@ -1,0 +1,880 @@
+\documentclass[]{article}
+\usepackage{lmodern}
+\usepackage{amssymb,amsmath}
+\usepackage{ifxetex,ifluatex}
+\usepackage{fixltx2e} % provides \textsubscript
+\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+\else % if luatex or xelatex
+  \ifxetex
+    \usepackage{mathspec}
+  \else
+    \usepackage{fontspec}
+  \fi
+  \defaultfontfeatures{Ligatures=TeX,Scale=MatchLowercase}
+\fi
+% use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+% use microtype if available
+\IfFileExists{microtype.sty}{%
+\usepackage{microtype}
+\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\usepackage[margin=1in]{geometry}
+\usepackage{hyperref}
+\hypersetup{unicode=true,
+            pdftitle={STEM Fellowship R Workshop},
+            pdfauthor={Alin Morariu},
+            pdfborder={0 0 0},
+            breaklinks=true}
+\urlstyle{same}  % don't use monospace font for urls
+\usepackage{color}
+\usepackage{fancyvrb}
+\newcommand{\VerbBar}{|}
+\newcommand{\VERB}{\Verb[commandchars=\\\{\}]}
+\DefineVerbatimEnvironment{Highlighting}{Verbatim}{commandchars=\\\{\}}
+% Add ',fontsize=\small' for more characters per line
+\usepackage{framed}
+\definecolor{shadecolor}{RGB}{248,248,248}
+\newenvironment{Shaded}{\begin{snugshade}}{\end{snugshade}}
+\newcommand{\AlertTok}[1]{\textcolor[rgb]{0.94,0.16,0.16}{#1}}
+\newcommand{\AnnotationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\AttributeTok}[1]{\textcolor[rgb]{0.77,0.63,0.00}{#1}}
+\newcommand{\BaseNTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\BuiltInTok}[1]{#1}
+\newcommand{\CharTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\CommentTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\CommentVarTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ConstantTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ControlFlowTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\DataTypeTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{#1}}
+\newcommand{\DecValTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\DocumentationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\ErrorTok}[1]{\textcolor[rgb]{0.64,0.00,0.00}{\textbf{#1}}}
+\newcommand{\ExtensionTok}[1]{#1}
+\newcommand{\FloatTok}[1]{\textcolor[rgb]{0.00,0.00,0.81}{#1}}
+\newcommand{\FunctionTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\ImportTok}[1]{#1}
+\newcommand{\InformationTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\newcommand{\KeywordTok}[1]{\textcolor[rgb]{0.13,0.29,0.53}{\textbf{#1}}}
+\newcommand{\NormalTok}[1]{#1}
+\newcommand{\OperatorTok}[1]{\textcolor[rgb]{0.81,0.36,0.00}{\textbf{#1}}}
+\newcommand{\OtherTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{#1}}
+\newcommand{\PreprocessorTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textit{#1}}}
+\newcommand{\RegionMarkerTok}[1]{#1}
+\newcommand{\SpecialCharTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\SpecialStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\StringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\VariableTok}[1]{\textcolor[rgb]{0.00,0.00,0.00}{#1}}
+\newcommand{\VerbatimStringTok}[1]{\textcolor[rgb]{0.31,0.60,0.02}{#1}}
+\newcommand{\WarningTok}[1]{\textcolor[rgb]{0.56,0.35,0.01}{\textbf{\textit{#1}}}}
+\usepackage{graphicx,grffile}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+\IfFileExists{parskip.sty}{%
+\usepackage{parskip}
+}{% else
+\setlength{\parindent}{0pt}
+\setlength{\parskip}{6pt plus 2pt minus 1pt}
+}
+\setlength{\emergencystretch}{3em}  % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{0}
+% Redefines (sub)paragraphs to behave more like sections
+\ifx\paragraph\undefined\else
+\let\oldparagraph\paragraph
+\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
+\fi
+\ifx\subparagraph\undefined\else
+\let\oldsubparagraph\subparagraph
+\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\fi
+
+%%% Use protect on footnotes to avoid problems with footnotes in titles
+\let\rmarkdownfootnote\footnote%
+\def\footnote{\protect\rmarkdownfootnote}
+
+%%% Change title format to be more compact
+\usepackage{titling}
+
+% Create subtitle command for use in maketitle
+\providecommand{\subtitle}[1]{
+  \posttitle{
+    \begin{center}\large#1\end{center}
+    }
+}
+
+\setlength{\droptitle}{-2em}
+
+  \title{STEM Fellowship R Workshop}
+    \pretitle{\vspace{\droptitle}\centering\huge}
+  \posttitle{\par}
+    \author{Alin Morariu}
+    \preauthor{\centering\large\emph}
+  \postauthor{\par}
+      \predate{\centering\large\emph}
+  \postdate{\par}
+    \date{30/10/2019}
+
+
+\begin{document}
+\maketitle
+
+\hypertarget{welcome}{%
+\section{Welcome!}\label{welcome}}
+
+This is a 2 part workshop focusing on key coding skills in R that will
+be useful in a research setting. Topics covered will include
+
+\begin{itemize}
+\tightlist
+\item
+  R objects
+\item
+  Basic operations
+\item
+  Introduction to knitr
+\item
+  Introduction to the tidyverse
+\item
+  Data wrangling (via dplyr)
+\item
+  Data visualization (via ggplot2)
+\item
+  Introduction to hypothesis testing
+\item
+  Linear models (if time permits)
+\item
+  Export our results to a PDF via an RMarkdown file
+\end{itemize}
+
+\hypertarget{what-is-r}{%
+\subsubsection{What is R?}\label{what-is-r}}
+
+R is a statistical program language that gives you a means of computing
+key values and plots to analyze your data. We will be using an IDE
+overlayed onto R called R Studio which provies a clean, intuitive
+environment for you to work in. R Studio has 4 main panes - Source file,
+Console, Environment, and Files.
+
+\hypertarget{r-objects}{%
+\subsubsection{R objects}\label{r-objects}}
+
+There are many ways to store data/information in R. Here are a few of
+the key objects we will come across in our work.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# storing a number }
+\NormalTok{x0 <-}\StringTok{ }\DecValTok{42} 
+\KeywordTok{class}\NormalTok{(x0)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] "numeric"
+\end{verbatim}
+
+Note how x0 now appears in your environment and points to the value 42
+stored in memory.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# can store multiple values in the same memory slot }
+\NormalTok{v0 <-}\StringTok{ }\KeywordTok{c}\NormalTok{(}\DecValTok{41}\NormalTok{, x0, }\DecValTok{43}\NormalTok{)}
+\NormalTok{v0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 41 42 43
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# access specific values of a vector }
+\NormalTok{v0[}\DecValTok{2}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 42
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{v0[}\DecValTok{2}\OperatorTok{:}\DecValTok{3}\NormalTok{]}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 42 43
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# can store multiple vectors in a data frame }
+\NormalTok{df0 <-}\StringTok{ }\KeywordTok{data.frame}\NormalTok{(v0, }\DecValTok{2}\OperatorTok{*}\NormalTok{v0, v0}\OperatorTok{/}\DecValTok{2}\NormalTok{)}
+\NormalTok{df0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   v0 X2...v0 v0.2
+## 1 41      82 20.5
+## 2 42      84 21.0
+## 3 43      86 21.5
+\end{verbatim}
+
+\hypertarget{r-operations}{%
+\subsubsection{R operations}\label{r-operations}}
+
+This makes for a nice transition into some basic operations you can do
+with R. It is helpful to think of R as an incredibly powerful
+calculator.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# addition and subtraction }
+\NormalTok{x0 }\OperatorTok{+}\StringTok{ }\NormalTok{x0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 84
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x0 }\OperatorTok{-}\StringTok{ }\DecValTok{42}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 0
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# multiplication and subtraction }
+\DecValTok{2}\OperatorTok{*}\NormalTok{x0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 84
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{x0}\OperatorTok{*}\DecValTok{3} 
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 126
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{2}\OperatorTok{*}\NormalTok{v0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 82 84 86
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\DecValTok{2}\OperatorTok{*}\NormalTok{df0 }\CommentTok{# note at how the scalar is applied }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   v0 X2...v0 v0.2
+## 1 82     164   41
+## 2 84     168   42
+## 3 86     172   43
+\end{verbatim}
+
+Some times we need to multiply large matricies in order to compute
+certain values quickly. Fortunately, R provides functions dedicated to
+doing just this.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# define a 3x3 matrix}
+\NormalTok{mt0 <-}\StringTok{ }\KeywordTok{as.matrix}\NormalTok{(df0)}
+\NormalTok{mt0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      v0 X2...v0 v0.2
+## [1,] 41      82 20.5
+## [2,] 42      84 21.0
+## [3,] 43      86 21.5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# transpose}
+\KeywordTok{t}\NormalTok{(mt0)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##         [,1] [,2] [,3]
+## v0      41.0   42 43.0
+## X2...v0 82.0   84 86.0
+## v0.2    20.5   21 21.5
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# vector multiplication }
+
+\CommentTok{# element wise }
+\NormalTok{v0 }\OperatorTok{*}\StringTok{ }\NormalTok{v0 }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 1681 1764 1849
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# dot product }
+\NormalTok{v0 }\OperatorTok{%*%}\StringTok{ }\NormalTok{v0}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      [,1]
+## [1,] 5294
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# vector product}
+\NormalTok{v0 }\OperatorTok{%*%}\StringTok{ }\KeywordTok{t}\NormalTok{(v0)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##      [,1] [,2] [,3]
+## [1,] 1681 1722 1763
+## [2,] 1722 1764 1806
+## [3,] 1763 1806 1849
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# matrix product }
+\NormalTok{mt0 }\OperatorTok{%*%}\StringTok{ }\NormalTok{mt0 }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##          v0 X2...v0    v0.2
+## [1,] 6006.5   12013 3003.25
+## [2,] 6153.0   12306 3076.50
+## [3,] 6299.5   12599 3149.75
+\end{verbatim}
+
+With that last set of operations, we must be careful to ensure that the
+dimensions of the vectors make sense with respect to the products.
+
+\hypertarget{functions}{%
+\subsubsection{Functions}\label{functions}}
+
+Sometimes we want to do a defined set of operations and this is where
+user functions come in. R contains a set of built in functions which
+come in handy, but we can also define our own functions.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# built in function example }
+\KeywordTok{sum}\NormalTok{(}\DecValTok{1}\NormalTok{,}\DecValTok{2}\NormalTok{,}\DecValTok{3}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 6
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{sum}\NormalTok{(v0)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 126
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{my_sum <-}\StringTok{ }\ControlFlowTok{function}\NormalTok{(vector)\{}
+  \CommentTok{# this function will sum the first and last numbers in a vector }
+\NormalTok{  x <-}\StringTok{ }\NormalTok{vector[}\DecValTok{1}\NormalTok{] }\OperatorTok{+}\StringTok{ }\NormalTok{vector[}\KeywordTok{length}\NormalTok{(vector)]}
+  \KeywordTok{return}\NormalTok{(x)}
+\NormalTok{\}}
+
+\KeywordTok{my_sum}\NormalTok{(v0) }\CommentTok{# can you think of a case where this function will fail? }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## [1] 84
+\end{verbatim}
+
+\hypertarget{packages}{%
+\subsubsection{Packages}\label{packages}}
+
+Since base R could not possilbe incorporate all functions anyone has
+ever made, users will sometimes ``package'' their user defined functions
+into an object called a package. Packages are simply scripts of code
+which you can import into your work space and take advantage of in order
+to simplify your work. The advantage to packages is that all of their
+source code is hidden from you, the user, but you get access to a wide
+array of very powerful and often highly optimized functions (more on
+this later).
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# before using a package, you need to install it}
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{"tidyverse"}\NormalTok{)}
+\KeywordTok{install.packages}\NormalTok{(}\StringTok{"knitr)}
+\end{Highlighting}
+\end{Shaded}
+
+The first time you ever want to use a package, you must install it so R
+has the source code. From this point on, any time you want to use the
+package all you need to do is call it so R knows to activate this code
+via the library function
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(tidyverse)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## -- Attaching packages ------------------------------------------------------------ tidyverse 1.2.1 --
+\end{verbatim}
+
+\begin{verbatim}
+## v ggplot2 3.2.1     v purrr   0.3.3
+## v tibble  2.1.3     v dplyr   0.8.3
+## v tidyr   1.0.0     v stringr 1.4.0
+## v readr   1.3.1     v forcats 0.4.0
+\end{verbatim}
+
+\begin{verbatim}
+## -- Conflicts --------------------------------------------------------------- tidyverse_conflicts() --
+## x dplyr::filter() masks stats::filter()
+## x dplyr::lag()    masks stats::lag()
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\KeywordTok{library}\NormalTok{(knitr)}
+\end{Highlighting}
+\end{Shaded}
+
+Today we will focus on the usage of two key R packages - tidyverse and
+knitr.
+
+\hypertarget{tidyverse}{%
+\subsubsection{Tidyverse}\label{tidyverse}}
+
+The tidyverse is a conglometration of smaller packages created with the
+goal of simplifying many of R's data science capabilities as well as
+taking advantage of modern computing power through highly efficient back
+end code (you do NOT need to worry about this and this is why having it
+in a package is so convenient). Within the tidyverse, we will focus on 2
+main sub-packages. Namely, dplyr (a package used for data wrangling and
+cleaning), and ggplot2 (a packaged used for data visualization and
+creation of plots).
+
+\hypertarget{knitr}{%
+\subsubsection{Knitr}\label{knitr}}
+
+Knitr will be particularly useful to us since it will allow us to export
+our work from these .Rmd files into usable, and sometimes publishable,
+documents. The RMarkdown documents can be exported to HTML, PDF, or Word
+documents making them very useful when working on a project. The
+alternative is to write all of your code in an R script (a .R file), and
+work with the outputted objects individually (for example, you can save
+any of your plots as .jpeg or .png files which you can then slot into
+your figures in another document). I recommend using the RMarkdown
+setting due to it's ability to handle inline code via the code chunks
+you've been seeing so far.
+
+\hypertarget{working-with-data}{%
+\section{Working with Data}\label{working-with-data}}
+
+Now that we have a basic understanding what R is capable of doing at an
+``atomic'' level, let us pull in some data and do a low level analysis.
+We will begin by cleaning the data first, then plotting the data.
+
+\hypertarget{cleaning}{%
+\subsubsection{Cleaning}\label{cleaning}}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{trees <-}\StringTok{ }\NormalTok{datasets}\OperatorTok{::}\NormalTok{trees}
+
+\CommentTok{# preview our data}
+\KeywordTok{head}\NormalTok{(trees)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+##   Girth Height Volume
+## 1   8.3     70   10.3
+## 2   8.6     65   10.3
+## 3   8.8     63   10.2
+## 4  10.5     72   16.4
+## 5  10.7     81   18.8
+## 6  10.8     83   19.7
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# another option}
+\KeywordTok{glimpse}\NormalTok{(trees)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Observations: 31
+## Variables: 3
+## $ Girth  <dbl> 8.3, 8.6, 8.8, 10.5, 10.7, 10.8, 11.0, 11.0, 11.1, 11.2...
+## $ Height <dbl> 70, 65, 63, 72, 81, 83, 66, 75, 80, 75, 79, 76, 76, 69,...
+## $ Volume <dbl> 10.3, 10.3, 10.2, 16.4, 18.8, 19.7, 15.6, 18.2, 22.6, 1...
+\end{verbatim}
+
+Note that these two functions do essentially the same thing. In some
+cases one is better than the other but that tends to not be clear until
+you try it. As a rule of thumb, if you have a lot of colummns in your
+data, you probably want to be using glimpse since it shows all of the
+column names where head might overflow onto several pages.
+
+Now let's do some manipulations to our data.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{trees <-}\StringTok{ }\KeywordTok{tbl_df}\NormalTok{(trees) }\CommentTok{# coerce dataframe into a tbl }
+
+\CommentTok{# find the min and max for the girth }
+\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise}\NormalTok{(trees, }\DataTypeTok{minimum =} \KeywordTok{min}\NormalTok{(Girth))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 1
+##   minimum
+##     <dbl>
+## 1     8.3
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise_each}\NormalTok{(trees, }\KeywordTok{funs}\NormalTok{(min))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## Warning: funs() is soft deprecated as of dplyr 0.8.0
+## Please use a list of either functions or lambdas: 
+## 
+##   # Simple named list: 
+##   list(mean = mean, median = median)
+## 
+##   # Auto named with `tibble::lst()`: 
+##   tibble::lst(mean, median)
+## 
+##   # Using lambdas
+##   list(~ mean(., trim = .2), ~ median(., na.rm = TRUE))
+## This warning is displayed once per session.
+\end{verbatim}
+
+\begin{verbatim}
+## # A tibble: 1 x 3
+##   Girth Height Volume
+##   <dbl>  <dbl>  <dbl>
+## 1   8.3     63   10.2
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# many other function available}
+\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{summarise_each}\NormalTok{(trees, }\KeywordTok{funs}\NormalTok{(IQR))}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 1 x 3
+##   Girth Height Volume
+##   <dbl>  <dbl>  <dbl>
+## 1  4.20      8   17.9
+\end{verbatim}
+
+\textbf{Exercise 1:} find the maximum of each column in the trees
+dataset.
+
+One of the nice things about these packages, is that they come with a
+cheatsheet which is very helpful to have nearby. You can find them via
+Google.
+\href{https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf}{Link
+for dplyr cheatsheet}. Take a look at this cheatsheet and try some of
+the functions.
+
+The three that I find especially useful are select, filter, and mutate.
+While select and filter are self-explanatory, mutate is not. The mutate
+function in dplyr performs some operation and appends a colummn to the
+end of your data table. Let's see some examples.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# take note of the piping operator}
+
+\CommentTok{# pipes pass the output of the commands preceding it into the first }
+\CommentTok{# argument of the next command }
+
+\NormalTok{trees }\OperatorTok{%>%}\StringTok{ }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Girth_cm =}\NormalTok{ Girth}\OperatorTok{*}\FloatTok{2.23}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 31 x 4
+##    Girth Height Volume Girth_cm
+##    <dbl>  <dbl>  <dbl>    <dbl>
+##  1   8.3     70   10.3     18.5
+##  2   8.6     65   10.3     19.2
+##  3   8.8     63   10.2     19.6
+##  4  10.5     72   16.4     23.4
+##  5  10.7     81   18.8     23.9
+##  6  10.8     83   19.7     24.1
+##  7  11       66   15.6     24.5
+##  8  11       75   18.2     24.5
+##  9  11.1     80   22.6     24.8
+## 10  11.2     75   19.9     25.0
+## # ... with 21 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{trees }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Girth_cm =} \KeywordTok{round}\NormalTok{(Girth}\OperatorTok{*}\FloatTok{2.23}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(Height, Volume, Girth_cm)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 31 x 3
+##    Height Volume Girth_cm
+##     <dbl>  <dbl>    <dbl>
+##  1     70   10.3     18.5
+##  2     65   10.3     19.2
+##  3     63   10.2     19.6
+##  4     72   16.4     23.4
+##  5     81   18.8     23.9
+##  6     83   19.7     24.1
+##  7     66   15.6     24.5
+##  8     75   18.2     24.5
+##  9     80   22.6     24.8
+## 10     75   19.9     25.0
+## # ... with 21 more rows
+\end{verbatim}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{trees }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Girth_cm =} \KeywordTok{round}\NormalTok{(Girth}\OperatorTok{*}\FloatTok{2.23}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(Height, Volume, Girth_cm) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(Girth_cm }\OperatorTok{>}\StringTok{ }\DecValTok{33}\NormalTok{)}
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 8 x 3
+##   Height Volume Girth_cm
+##    <dbl>  <dbl>    <dbl>
+## 1     72   38.3     35.7
+## 2     77   42.6     36.4
+## 3     81   55.4     38.6
+## 4     82   55.7     39.0
+## 5     80   58.3     39.9
+## 6     80   51.5     40.1
+## 7     80   51       40.1
+## 8     87   77       45.9
+\end{verbatim}
+
+Note thatthe results displayed above are NOT stored into memory but
+merely displayed. If we wanted to store them and use them later, we need
+to use the assignment operator and store it to a variable in memory.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{selected_trees <-}\StringTok{ }\NormalTok{trees }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{mutate}\NormalTok{(}\DataTypeTok{Girth_cm =} \KeywordTok{round}\NormalTok{(Girth}\OperatorTok{*}\FloatTok{2.23}\NormalTok{,}\DecValTok{2}\NormalTok{)) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{select}\NormalTok{(Height, Volume, Girth_cm) }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\NormalTok{dplyr}\OperatorTok{::}\KeywordTok{filter}\NormalTok{(Girth_cm }\OperatorTok{>}\StringTok{ }\DecValTok{33}\NormalTok{)}
+
+\NormalTok{selected_trees }\CommentTok{# same as above }
+\end{Highlighting}
+\end{Shaded}
+
+\begin{verbatim}
+## # A tibble: 8 x 3
+##   Height Volume Girth_cm
+##    <dbl>  <dbl>    <dbl>
+## 1     72   38.3     35.7
+## 2     77   42.6     36.4
+## 3     81   55.4     38.6
+## 4     82   55.7     39.0
+## 5     80   58.3     39.9
+## 6     80   51.5     40.1
+## 7     80   51       40.1
+## 8     87   77       45.9
+\end{verbatim}
+
+\textbf{Exercise 2:} Using the dplyr cheatsheet, create a data table
+containing only the trees which have a girth greater than 20cm and less
+than 36cm. Arrange them in ascending order based on the Height.
+
+\begin{verbatim}
+## # A tibble: 21 x 3
+##    Height Volume Girth_cm
+##     <dbl>  <dbl>    <dbl>
+##  1     64   24.9     30.8
+##  2     66   15.6     24.5
+##  3     69   21.3     26.1
+##  4     71   25.7     30.6
+##  5     72   16.4     23.4
+##  6     72   38.3     35.7
+##  7     74   22.2     28.8
+##  8     74   36.3     32.3
+##  9     75   18.2     24.5
+## 10     75   19.9     25.0
+## # ... with 11 more rows
+\end{verbatim}
+
+\hypertarget{plotting}{%
+\subsubsection{Plotting}\label{plotting}}
+
+Now that we have cleaned our data to our subjects of interest we can
+start plotting this data to get some more insight into what exactly is
+happening. We will be using ggplot2, a layer based graphical tool based
+on the Grammar of Graphics guidelines. The way it works is by adding
+data, then mapping variables to aesthetic elements of the plot like the
+``x-axis'' or the ``colour''; then you tell it what to draw (points,
+lines, bars, etc); then you annotate the plot with axis labels and other
+things (this description is credited to
+\href{https://awstringer1.github.io/ssu-r-workshop/ssu-r-workshop.html}{Alex
+Stringer's} R workshop). So let's do exactly that. We will plot this
+stepwise.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot1 <-}\StringTok{ }\NormalTok{solution }\OperatorTok{%>%}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ Height))}
+\NormalTok{plot1}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{R_workshop_files/figure-latex/unnamed-chunk-1-1.pdf}
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\CommentTok{# add my favourite theme }
+\NormalTok{plot1 <-}\StringTok{ }\NormalTok{plot1 }\OperatorTok{+}\StringTok{ }\KeywordTok{theme_minimal}\NormalTok{()}
+\NormalTok{plot1 }\CommentTok{# much better :D }
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{R_workshop_files/figure-latex/unnamed-chunk-1-2.pdf}
+
+Now let's start making some plots. The first one we will look at is a
+bar graph.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot1 <-}\StringTok{ }\NormalTok{plot1 }\OperatorTok{+}\StringTok{ }\KeywordTok{geom_histogram}\NormalTok{(}\DataTypeTok{binwidth =} \DecValTok{3}\NormalTok{, }\DataTypeTok{fill =} \StringTok{"gold"}\NormalTok{, }\DataTypeTok{colour =} \StringTok{"navy"}\NormalTok{, }\DataTypeTok{alpha =} \FloatTok{0.7}\NormalTok{)}
+\NormalTok{plot1}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{R_workshop_files/figure-latex/unnamed-chunk-2-1.pdf}
+
+Let's add some labels to our graph.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot1 <-}\StringTok{ }\NormalTok{plot1 }\OperatorTok{+}\StringTok{ }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Histogram of Selected Tree Heights"}\NormalTok{,}
+  \DataTypeTok{xlab =} \StringTok{"Height (inches)"}\NormalTok{)}
+\NormalTok{plot1}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{R_workshop_files/figure-latex/unnamed-chunk-3-1.pdf}
+
+The way we've been doing it has been by adding everything layer by
+layer. This can be a bit tedious and hence can be avoided by taking a
+one shot approach. The full code for the histogram above is:
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot1 <-}\StringTok{ }\NormalTok{solution }\OperatorTok{%>%}\StringTok{ }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ Height)) }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\KeywordTok{geom_histogram}\NormalTok{(}\DataTypeTok{binwidth =} \DecValTok{3}\NormalTok{, }\DataTypeTok{fill =} \StringTok{"gold"}\NormalTok{, }\DataTypeTok{colour =} \StringTok{"navy"}\NormalTok{, }\DataTypeTok{alpha =} \FloatTok{0.7}\NormalTok{) }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Histogram of Selected Tree Heights"}\NormalTok{,}
+  \DataTypeTok{xlab =} \StringTok{"Height (inches)"}\NormalTok{) }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\KeywordTok{theme_minimal}\NormalTok{()}
+
+\NormalTok{plot1}
+\end{Highlighting}
+\end{Shaded}
+
+We now turn our attention to line graphs. In this case, we will take the
+one-shot approach to producing this graph.
+
+\begin{Shaded}
+\begin{Highlighting}[]
+\NormalTok{plot2 <-}\StringTok{ }\NormalTok{solution }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ Height, }\DataTypeTok{y =}\NormalTok{ Volume)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_point}\NormalTok{(}\DataTypeTok{colour =} \StringTok{"navy"}\NormalTok{, }\DataTypeTok{alpha =} \FloatTok{0.7}\NormalTok{) }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Volume of CO2 vs. Height of Trees"}\NormalTok{,}
+       \DataTypeTok{x =} \StringTok{"Height (inches)"}\NormalTok{,}
+       \DataTypeTok{y =} \StringTok{"Volume of CO2 (m^3)"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method=}\StringTok{'lm'}\NormalTok{, }\DataTypeTok{colour =} \StringTok{"gold"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_minimal}\NormalTok{()}
+
+\NormalTok{plot2 <-}\StringTok{ }\NormalTok{solution }\OperatorTok{%>%}\StringTok{ }
+\StringTok{  }\KeywordTok{ggplot}\NormalTok{(}\KeywordTok{aes}\NormalTok{(}\DataTypeTok{x =}\NormalTok{ Height, }\DataTypeTok{y =}\NormalTok{ Volume)) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_jitter}\NormalTok{(}\DataTypeTok{colour =} \StringTok{"navy"}\NormalTok{, }\DataTypeTok{alpha =} \FloatTok{0.7}\NormalTok{) }\OperatorTok{+}\StringTok{ }
+\StringTok{  }\KeywordTok{labs}\NormalTok{(}\DataTypeTok{title =} \StringTok{"Volume of CO2 vs. Height of Trees"}\NormalTok{,}
+       \DataTypeTok{x =} \StringTok{"Height (inches)"}\NormalTok{,}
+       \DataTypeTok{y =} \StringTok{"Volume of CO2 (m^3)"}\NormalTok{) }\OperatorTok{+}
+\StringTok{  }\KeywordTok{geom_smooth}\NormalTok{(}\DataTypeTok{method=}\StringTok{'lm'}\NormalTok{, }\DataTypeTok{colour =} \StringTok{"gold"}\NormalTok{)}\OperatorTok{+}
+\StringTok{  }\KeywordTok{theme_minimal}\NormalTok{()}
+
+\NormalTok{plot2}
+\end{Highlighting}
+\end{Shaded}
+
+\includegraphics{R_workshop_files/figure-latex/Line Graph-1.pdf}
+
+
+\end{document}
