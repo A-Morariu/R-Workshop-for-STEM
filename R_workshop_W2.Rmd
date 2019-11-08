@@ -1,0 +1,184 @@
+---
+title: "R Seminar for Stem Week 2"
+author: "Alin Morariu"
+date: "06/11/2019"
+output: html_document
+---
+Recall from the first tutorial that for *every* new file we must load the packages we will be using for this tutorial. Accordingly, I recommend *always* including a "preamble" section where you load any and all packages you will need for your file. Put this section before your code (just under the title section which takes up the first few lines).
+
+```{r Preamble}
+library(tidyverse)
+```
+For the remainder of the tutorial, we will be working with the diamonds dataset. This dataset has just over 50,000 entries in it which gives us a large sample size and prevents us from examining every row of the data since that would be too time consuming. As such, we will be relying on summary statistics and plots to give us insight into the data. 
+
+Start by loading the data and previewing as we did last week. 
+
+```{r}
+# load the data
+data(diamonds) 
+
+# preview the data
+glimpse(diamonds)
+# head(diamonds) is another option but glimpse works better here due to the number of columns 
+colnames(diamonds) # sometimes it's helpful to see just the column names (more)
+
+# Base R command to get column wise summary statistics of the data
+summary(diamonds)
+```
+
+Now that we have an idea of the scale of our data we can start with some plots to gain some insight on their distribution. This is where our cheatsheets will come into play.
+
+1. [dplyr](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf) for data wrangling
+2. [ggplot2](https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf) for data visualization (plotting)
+
+In order to see how individual variables behave we need to make one variable plots. Generally speaking, we make histograms for continuous variables, and bar graphs for categorical/factor variables. Below is an example of each.
+
+```{r Histogram}
+# code is very similar to last week
+# use the piping operator which passes the preceding argument as the first argument of the following function
+plot1 <- diamonds %>% ggplot(aes(price)) + 
+  geom_histogram(binwidth=500, fill = "navy", color = "gold") + 
+  ggtitle("Diamond Price Distribution") + xlab("Diamond Price U$") + ylab("Frequency") + 
+  theme_minimal()
+
+# have to call the object in order to see it
+plot1
+```
+
+```{r Bar Graph}
+plot2 <- diamonds %>% ggplot(aes(cut)) + 
+  geom_bar(fill = "navy", color = "gold") + 
+  ggtitle("Diamond Cut Distribution") + xlab("Cut of Diamond") + ylab("Frequency") + 
+  theme_minimal()
+
+plot2
+```
+
+We can create 2-variable plots as well. The classic example is a dot plot. 
+
+```{r Dot plot}
+plot3 <- diamonds %>% ggplot(aes(x = carat, y = price)) +
+  geom_point(color = "navy", alpha = 0.7) + 
+  geom_smooth(method = "lm", color = "gold") + 
+  ggtitle("Diamond Price vs. Carat") + xlab("Carats") + ylab("Price (USD)") +
+  theme_minimal()
+
+plot3
+```
+
+
+#### Exercise
+
+1. Create a bar graph for the color of the diamonds. 
+2. Create 2 more dot plots for any of the numerical variables. Do not include a line of best fit on one of them. 
+
+One of the convenient features of tidyverse is the cross-compatability of its various constituent packages. Here we will explore how to combine dplyr and ggplot2 in order create more specific graphs. Suppose we were interested in certain subsets of the diamonds data set. Solve the 3 questions below using the filter function available in dplyr (or any other means you can come up with). 
+
+1. How many cost less than $500?
+```{r Solution 1}
+diamonds %>% 
+  filter(price < 500)
+```
+
+2. How many cost less than \$250?
+```{r Solution 2}
+diamonds %>% 
+  filter(price < 250)
+```
+
+3. How many cost equal to \$15,000 or more?
+```{r Solution 3}
+diamonds %>% 
+  filter(price > 15000)
+```
+
+4. How many diamonds cost between \$2,00 and \$7,500?
+```{r Solution 4}
+diamonds %>% 
+  filter(price < 7500) %>% 
+  filter(price > 2500)
+```
+
+5. Create a histogram of the diamond prices for only the diamonds selected in Q4. 
+```{r Solution 5}
+diamonds %>% 
+  filter(price < 7500) %>% 
+  filter(price > 2500) %>% 
+  ggplot(aes(price)) + 
+  geom_histogram(binwidth = 250, color = "navy", fill = "gold") + 
+  ggtitle("Histogram of diamonds priced between $2,500 and $7,500") + xlab("Price") + ylab("Frequency") + 
+  theme_minimal()
+```
+
+You are encouraged to tsary out more of these subsetting problems on your own.
+
+# Linear Models 
+
+For the remainder of this document we will go over linear regression (i.e. putting a straight line through things). The goal here is to avoid all of the gory details of the math behind linear regression and provide you a practical set of tools for fitting the model in R and assessing the quality of the fit. 
+
+Data comes pairwise. For every x value we have a corresponding y value. Our model will put a straight line through all of our pairings such that the line is as close as possible to all the points simultaneously. The difference between what our y value and the predicted y value (comes from the y=mx+b equation we are overlaying over the data) is called the error. 
+
+When talking about quality of fit, we need to be aware of the 3 assumptions we make when fitting a linear model.
+
+1. Errors are independent (randomness)
+2. Errors are normally distributed 
+
+### Fitting the model
+
+We will fit the model using the base R lm function. 
+
+```{r}
+?lm # see documentation of the function
+
+# pick your covariates - the variables that go into the regression
+colnames(diamonds)
+
+# start with a simple 2 variable model
+lm1 <- lm(price ~ carat, data = diamonds)
+lm1
+```
+ 
+The above code outputs the respective paramteres of a line, namely the slope and intercept. Here is the code for what this regression looks like.
+
+```{r}
+plot1_lm <- diamonds %>% ggplot(aes(x = carat, y = price)) +
+  geom_point(colour = "navy", alpha = 0.5) + 
+  geom_smooth( method = "lm", colour = "gold")+
+  ggtitle("Diamond Price vs. Carat") + xlab("Carat") + ylab("Price (USD)") + 
+  theme_minimal()
+plot1_lm
+```
+
+Now to get some details about the fit. There are 2 main analyses that we perform: a significance analysis and a visual diagnostic. 
+
+Let's start with the visual diagnostics. 
+
+```{r Visual Diagnostics}
+plot(lm1)
+```
+
+Out of these 4 graphs, the three most important ones are the "Residuals vs. Fitted" plot, the "Normal-QQ" plot, and the "Residual vs. Leverage" plot. 
+
+#### "Residuals vs. Fitted" plot
+
+Look for any patterns or clustering. You essentially want to see "randomness" or no patterns. If no patterns are visible, then assumption 1 from earlier is not violated. 
+
+#### "Normal-QQ" plot
+
+This plot checks the second assumption. You want the points to lie on the dotted lined. If the points are *mostly* on the dotted line, assumption 2 is not violated. 
+
+#### "Residual vs. Leverage" plot
+
+This plot is useful for checking for outliers. If you have any points outside of the dotted lines (labelled Cook's distance) you can remove those points and refit the regression. 
+
+Now for the significance analysis. We will use the summamry function on our linear model. 
+
+```{r Significance analysis}
+summary(lm1)
+```
+
+The table provides us with estimates of the parameters along with their respective standard deviations. Our major concern is the last column which tells us the p-value of the respective parameter. We always set a significance level (typically it is 0.05). If the p-value is smaller than 0.05 then we can say that parameter (and the corresponding covariate, in this case the carat) is an important predictor of the diamond price. Note that regressions can have more than one parameter. 
+
+#### Exercise
+
+1. Add 3 additional parameters to your linear model by using the + operator in the formula section of the lm function.

@@ -2,7 +2,7 @@
 title: "STEM Fellowship R Workshop"
 author: "Alin Morariu"
 date: "30/10/2019"
-output: pdf_document
+output: html_document
 ---
 
 # Welcome! 
@@ -159,6 +159,12 @@ trees <- tbl_df(trees) # coerce dataframe into a tbl
 dplyr::summarise(trees, minimum = min(Girth))
 dplyr::summarise_each(trees, funs(min))
 
+# find the range of the data set
+mins <- dplyr::summarise_each(trees, funs(min))
+maxs <- dplyr::summarise_each(trees, funs(max))
+rng <- maxs-mins
+rng
+
 # many other function available
 dplyr::summarise_each(trees, funs(IQR))
 ```
@@ -272,5 +278,7 @@ plot2 <- solution %>%
   theme_minimal()
 
 plot2
+
+
 ```
 
