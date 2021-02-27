@@ -1,0 +1,400 @@
+---
+title: "Workshop"
+author: "Alin Morariu"
+date: "23/09/2020"
+output: html_document
+---
+
+# Welcome! 
+
+This is a 2 part workshop focusing on key coding skills in R that will be useful in a research setting. Topics covered will include 
+
+* R objects
+* Basic operations
+* Introduction to knitr
+* Introduction to the tidyverse
+* Data wrangling (via dplyr)
+* Data visualization (via ggplot2)
+* Introduction to hypothesis testing 
+* Linear models (if time permits)
+* Export our results to a PDF via an RMarkdown file 
+
+### What is R? 
+
+R is a statistical program language that gives you a means of computing key values and plots to analyze your data. We will be using an IDE overlayed onto R called R Studio which provies a clean, intuitive environment for you to work in. R Studio has 4 main panes - Source file, Console, Environment, and Files. 
+
+### R objects
+
+```{r R objects }
+x0 <- 42
+class(x0)
+```
+
+```{r}
+# can store multiple values in the same memory slot 
+v0 <- c(41, x0, 43)
+v0
+
+# acccessing specific parts of the vector 
+v0[2]
+v0[1:3]
+
+# can store multiple vectors 
+df0 <- data.frame(v0, 2*v0, v0/2)
+df0
+```
+
+
+
+### R operations 
+
+```{r R operations}
+# add and substract
+x0 + x0 
+x0-3
+
+# mult + div 
+x0*4
+x0/4
+
+v0*4
+
+# mult with dataframes 
+2*df0
+```
+
+```{r Matrix Operations}
+# define a 3x3 matrix 
+mt0 <- as.matrix(df0)
+mt0
+
+t(mt0)
+x0^2
+# vector multiplication 
+v0 * v0 # element wise
+
+v0 %*% v0 # dot product 
+
+v0 %*% t(v0) # vector product 
+
+mt0 %*% mt0 # matrix product 
+```
+
+### Functions
+
+Sometimes we want to do a defined set of operations and this is where user functions come in. R contains a set of built in functions which come in handy, but we can also define our own functions.
+
+```{r Function}
+sum(1,2,3)
+sum(v0)
+
+my_sum <- function(vector){
+     # sum the first and last entry of a vector 
+     x <- vector[1] + vector[length(vector)]
+     
+     return(x)
+}
+
+my_sum(v0)
+my_sum(c())
+```
+
+### Packages 
+
+```{r packages, eval = FALSE }
+install.packages('tidyverse')
+install.packages('knitr')
+```
+
+```{r call the packages}
+library(tidyverse)
+library(knitr)
+```
+
+Today we will focus on the usage of two key R packages - tidyverse and knitr. 
+
+### Tidyverse
+
+The tidyverse is a conglometration of smaller packages created with the goal of simplifying many of R's data science capabilities as well as taking advantage of modern computing power through highly efficient back end code (you do NOT need to worry about this and this is why having it in a package is so convenient). Within the tidyverse, we will focus on 2 main sub-packages. Namely, dplyr (a package used for data wrangling and cleaning), and ggplot2 (a packaged used for data visualization and creation of plots). 
+
+### Knitr
+
+Knitr will be particularly useful to us since it will allow us to export our work from these .Rmd files into usable, and sometimes publishable, documents. The RMarkdown documents can be exported to HTML, PDF, or Word documents making them very useful when working on a project. The alternative is to write all of your code in an R script (a .R file), and work with the outputted objects individually (for example, you can save any of your plots as .jpeg or .png files which you can then slot into your figures in another document). I recommend using the RMarkdown setting due to it's ability to handle inline code via the code chunks you've been seeing so far. 
+
+### The fun stuff 
+
+```{r Loading Data}
+trees <- datasets::trees
+
+# preview it! 
+head(trees, 10)
+
+glimpse(trees)
+```
+
+```{r Extracting info}
+trees <- tbl_df(trees)
+trees
+
+# find the min and max 
+dplyr::summarise(trees, minimum = min(Girth))
+mins <- dplyr::summarise_each(trees, funs(min))
+
+dplyr::summarise(trees, minimum = max(Girth))
+maxs <- dplyr::summarise_each(trees, funs(max))
+
+rng <- maxs - mins 
+rng
+```
+
+**Exercise 1:** find the maximum of each column in the trees dataset. 
+
+One of the nice things about these packages, is that they come with a cheatsheet which is very helpful to have nearby. You can find them via Google. [Link for dplyr cheatsheet](https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf). Take a look at this cheatsheet and try some of the functions.
+
+```{r Data manipulation }
+# note hte pipe operator 
+trees <- trees %>% dplyr::mutate(Girth_cm = Girth*2.23)
+
+trees %>% 
+     dplyr::mutate(Girth_cm = round(Girth*2.23,2)) %>% 
+     dplyr::select(Girth_cm, Height, Volume) 
+
+cutoff <- dplyr::summarise(trees, med = median(Girth_cm))
+cutoff
+
+selected_trees <- trees %>% 
+  dplyr::mutate(Girth_cm = round(Girth*2.23,2)) %>% 
+  dplyr::select(Girth_cm, Height, Volume) %>% 
+  dplyr::filter(Girth_cm > as.numeric(cutoff))
+```
+
+**Exercise 2:** Using the dplyr cheatsheet, create a data table containing only the trees which have a girth greater than 20cm and less than 36cm. Arrange them in ascending order based on the Height. 
+
+```{r Solution Ex2}
+solution <- trees %>% 
+     select(Girth_cm, Height, Volume) %>% 
+     filter(Girth_cm > 20 & Girth_cm <36) %>% 
+     filter(Girth_cm <36) %>% 
+     arrange(Height)
+solution 
+# above is equivalent to: 
+# arrange(filter(filter(select(trees, Girth_cm, Height, Volume) ,Girth_cm > 20 & Girth_cm <36) , Girth_cm <36), Height)
+```
+
+### Plotting 
+
+```{r Plotting}
+plot1 <- solution %>% ggplot(mapping = aes(x = Height))
+plot1
+
+plot1 <- plot1 + geom_histogram(binwidth = 3, fill = 'gold', colour = 'navy', alpha = 0.7)
+plot1
+
+plot1 <- plot1 +  labs(title = 'Histogram of Medium sized Trees',
+                       subtitle = 'In Ryerson colours',
+                       ylab = 'Counts') + xlab("Height (inches)")
+plot1
+```
+
+```{r Plotting 2}
+plot2 <- solution %>% 
+     ggplot(mapping = aes(x = Height)) +
+     geom_density(fill = 'gold', colour = 'navy', alpha = 0.7)+
+     labs(title = 'Density of Medium sized Trees',
+                       subtitle = 'In Ryerson colours',
+                       ylab = 'Counts') + xlab("Height (inches)")
+plot2
+```
+
+```{r}
+plot3 <- solution %>% 
+  ggplot(aes(x = Height, y = Volume)) +
+  geom_point(color = "navy", alpha = 0.7) +  
+  geom_density2d(color = "navy", alpha = 0.7) + 
+  labs(title = "Volume of CO2 vs. Height of Trees",
+       x = "Height (inches)",
+       y = "Volume of CO2 (m^3)") +
+  geom_smooth(method='lm', colour = "gold", se = FALSE)
+plot3
+```
+
+### Advance Plotting 
+
+```{r Preamble, eval=TRUE, echo=FALSE, message=FALSE, error=FALSE, warning=FALSE}
+options(scipen=999)
+
+### Set global chunk options
+knitr::opts_chunk$set(eval = TRUE)
+knitr::opts_chunk$set(echo = TRUE)
+knitr::opts_chunk$set(message = FALSE)
+knitr::opts_chunk$set(error = FALSE)
+knitr::opts_chunk$set(warning = FALSE)
+
+### Load packages
+library(tidyverse)
+library(lubridate)
+library(here)
+
+library(timeSeries)
+library(TSA)
+library(tseries)
+library(forecast)
+library(TSPred)
+
+library(scales)
+library(Matrix)
+
+### Load data and set working directory
+setwd("~/Documents/GitHub/COVID-19/csse_covid_19_data/csse_covid_19_time_series")
+
+infected_data <- read_csv("time_series_covid19_confirmed_global.csv")
+death_data <- read_csv("time_series_covid19_deaths_global.csv")
+recovered_data <- read_csv("time_series_covid19_recovered_global.csv")
+
+setwd("~/Documents/GitHub/COVID-19")
+```
+
+```{r}
+infected_data_tidy <- infected_data %>% 
+     gather(date_stamp, num_infect, '1/22/20':'4/15/20') %>% 
+     rename(Province = `Province/State`, Country = `Country/Region`) %>% 
+     select(Country, Province, date_stamp, num_infect) %>% 
+     group_by(Province)
+
+death_data_tidy <- death_data %>% 
+     gather(date_stamp, num_dead,'1/22/20':'4/15/20') %>% 
+     rename(Province = `Province/State`, Country = `Country/Region`) %>% 
+     select(Country, Province, date_stamp, num_dead) %>% 
+     group_by(Province)
+
+recovered_data_tidy <- recovered_data %>% 
+     gather(date_stamp, num_recover,'1/22/20':'4/15/20') %>% 
+     rename(Province = `Province/State`, Country = `Country/Region`) %>% 
+     select(Country, Province, date_stamp, num_recover) %>% 
+     group_by(Province)
+```
+
+```{r Infected Data Cleaning}
+infected_data_tidy$date_stamp <- lubridate::mdy(infected_data_tidy$date_stamp)
+
+infected_summary <- infected_data_tidy %>% 
+     group_by(date_stamp) %>% 
+     summarise(global_total = sum(num_infect))
+
+```
+
+```{r Death data cleaning}
+# change strings to dates
+death_data_tidy$date_stamp <- lubridate::mdy(death_data_tidy$date_stamp) 
+
+# global summary 
+death_summary <- death_data_tidy %>% 
+     group_by(date_stamp) %>% 
+     summarize(global_totals = sum(num_dead))
+```
+
+```{r recovery data cleaning}
+# change strings to dates
+recovered_data_tidy$date_stamp <- lubridate::mdy(recovered_data_tidy$date_stamp) 
+
+# global summary 
+recovered_summary <- recovered_data_tidy %>% 
+     group_by(date_stamp) %>% 
+     summarize(global_totals = sum(num_recover))
+```
+
+```{r Combining data}
+global_totals <- infected_data_tidy %>% 
+     left_join(death_data_tidy,
+               by = c("Country" = "Country",
+                      "Province" = "Province",
+                      "date_stamp" = "date_stamp")) %>% 
+          left_join(recovered_data_tidy,
+               by = c("Country" = "Country",
+                      "Province" = "Province",
+                      "date_stamp" = "date_stamp")) %>% 
+     replace_na(list(num_infect = 0, num_dead = 0, num_recover = 0)) %>% 
+     group_by(date_stamp) %>% 
+     summarize(total_infect  = sum(num_infect), 
+               total_dead = sum(num_dead), 
+               total_recovered = sum(num_recover)) 
+head(global_totals)
+```
+
+```{r Plotting Covid}
+pt_global_totals <- global_totals %>% 
+     ggplot(aes(x = date_stamp, y = total_infect, colour = 'Infected')) +
+     geom_line() + 
+     geom_line(aes(x = date_stamp, y = total_dead, colour = 'Dead')) + 
+     scale_y_continuous(labels = comma) +
+     scale_colour_manual('Legend', values = c('Infected' = 'orange',
+                                              'Dead' = 'black',
+                                              'Recovered' = 'green')) + 
+     geom_line(aes(x = date_stamp, y = total_recovered, colour = "Recovered")) + 
+     labs(title = "Global Totals for Covid-19",
+          x = "Date",
+          y = "Totals")
+pt_global_totals
+```
+
+```{r Plotting Covid 2}
+pt_global_totals2 <- global_totals %>% 
+     ggplot(aes(x = date_stamp, y = log(total_infect), colour = 'Infected')) +
+     geom_line() + 
+     geom_line(aes(x = date_stamp, y = log(total_dead), colour = 'Dead')) + 
+     geom_line(aes(x = date_stamp, y = log(total_recovered), colour = "Recovered")) + 
+     scale_y_continuous(labels = comma) +
+     scale_colour_manual('Legend', values = c('Infected' = 'orange',
+                                              'Dead' = 'black',
+                                              'Recovered' = 'green')) + 
+     labs(title = "Global Totals for Covid-19",
+          x = "Date",
+          y = "Totals")
+pt_global_totals2
+```
+
+# Linear Models 
+
+```{r Load the dataset}
+# load the data
+data(diamonds) 
+
+glimpse(diamonds)
+```
+
+```{r}
+summary(diamonds)
+```
+
+```{r Histogram for Diamond price}
+# code is very similar to last week
+# use the piping operator which passes the preceding argument as the first argument of the following function
+plot1 <- diamonds %>% ggplot(aes(price)) + 
+  geom_histogram(binwidth=500, fill = "navy", color = "gold") + 
+  ggtitle("Diamond Price Distribution") + xlab("Diamond Price U$") + ylab("Frequency") + 
+  theme_minimal()
+
+# have to call the object in order to see it
+plot1
+```
+
+```{r Linear model}
+# Does carat influence the price of a diamond 
+lm1 <- lm(price ~ carat, data = diamonds)
+```
+
+```{r}
+plot1_lm <- diamonds %>% ggplot(aes(x = carat, y = price)) +
+  geom_point(colour = "navy", alpha = 0.5) + 
+  geom_smooth( method = "lm", colour = "gold")+
+  ggtitle("Diamond Price vs. Carat") + xlab("Carat") + ylab("Price (USD)") + 
+  theme_minimal()
+plot1_lm
+```
+
+```{r}
+lm1
+```
+
+
+

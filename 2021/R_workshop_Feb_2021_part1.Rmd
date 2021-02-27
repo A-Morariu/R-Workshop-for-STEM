@@ -1,0 +1,198 @@
+---
+title: "R_workshop_Feb_2021"
+author: "Alin Morariu"
+date: "25/02/2021"
+output: html_document
+---
+
+# Welcome! 
+
+This is a 2 part workshop focusing on key coding skills in R that will be useful in a research setting. Topics covered will include 
+
+* R objects
+* Basic operations
+* Introduction to knitr
+* Introduction to the tidyverse
+* Data wrangling (via dplyr)
+* Data visualization (via ggplot2)
+* Introduction to hypothesis testing 
+* Linear models (if time permits)
+* Export our results to a PDF via an RMarkdown file 
+
+### What is R? 
+
+R is a statistical program language that gives you a means of computing key values and plots to analyze your data. We will be using an IDE overlayed onto R called R Studio which provies a clean, intuitive environment for you to work in. R Studio has 4 main panes - Source file, Console, Environment, and Files. 
+
+### R Objects 
+
+```{r R objects }
+x0 <- 42
+class(x0)
+```
+
+```{r}
+# can store multiple values in the same memory slot 
+v0 <- c(41, x0, 43)
+v0
+
+# acccessing specific parts of the vector 
+v0[2]
+v0[1:3]
+
+# can store multiple vectors 
+df0 <- data.frame(v0, 2*v0, v0/2)
+df0
+```
+
+
+### R operations 
+
+```{r R operations}
+# add and substract
+x0 + x0 
+x0-3
+
+# mult + div 
+x0*4
+x0/4
+
+v0*4
+
+# mult with dataframes 
+2*df0
+```
+
+```{r Matrix Operations}
+# define a 3x3 matrix 
+mt0 <- as.matrix(df0)
+mt0
+
+t(mt0)
+x0^2
+# vector multiplication 
+v0 * v0 # element wise
+
+v0 %*% v0 # dot product 
+
+v0 %*% t(v0) # vector product 
+
+mt0 %*% mt0 # matrix product 
+```
+
+### Functions
+
+Sometimes we want to do a defined set of operations and this is where user functions come in. R contains a set of built in functions which come in handy, but we can also define our own functions.
+
+```{r Function}
+sum(1,2,3)
+sum(v0)
+
+my_sum <- function(vector){
+     # sum the first and last entry of a vector 
+     x <- vector[1] + vector[length(vector)]
+     
+     return(x)
+}
+
+my_sum(v0)
+my_sum(c())
+```
+
+### Packages 
+
+```{r packages, eval = FALSE }
+install.packages('tidyverse')
+install.packages('knitr')
+```
+
+```{r call the packages}
+library(tidyverse)
+library(knitr)
+library(scales)
+```
+
+Today we will focus on the usage of two key R packages - tidyverse and knitr. 
+
+### Tidyverse
+
+The tidyverse is a conglometration of smaller packages created with the goal of simplifying many of R's data science capabilities as well as taking advantage of modern computing power through highly efficient back end code (you do NOT need to worry about this and this is why having it in a package is so convenient). Within the tidyverse, we will focus on 2 main sub-packages. Namely, dplyr (a package used for data wrangling and cleaning), and ggplot2 (a packaged used for data visualization and creation of plots). Both of these packages have wonderful cheatsheets online which I strongly recommend using (I open these up every time I do anything in R). 
+
+* dplyr: https://rstudio.com/wp-content/uploads/2015/02/data-wrangling-cheatsheet.pdf
+* ggplot2: https://rstudio.com/wp-content/uploads/2015/03/ggplot2-cheatsheet.pdf 
+
+### Knitr
+
+Knitr will be particularly useful to us since it will allow us to export our work from these .Rmd files into usable, and sometimes publishable, documents. The RMarkdown documents can be exported to HTML, PDF, or Word documents making them very useful when working on a project. The alternative is to write all of your code in an R script (a .R file), and work with the outputted objects individually (for example, you can save any of your plots as .jpeg or .png files which you can then slot into your figures in another document). I recommend using the RMarkdown setting due to it's ability to handle inline code via the code chunks you've been seeing so far. 
+
+### Playing with Covid-19
+
+Let's load in some data which we downloaded from the Johns Hopkins Covid-19 dashboard. The most recent files are available for download [here](https://github.com/CSSEGISandData/COVID-19). 
+
+```{r}
+# need to set where we get our data from -CHANGE THIS FOR YOUR COMPUTER
+setwd("~/Documents/GitHub/R-Workshop-for-STEM/2021")
+
+# many ways to import data
+covid_global <- read_csv("time_series_covid19_confirmed_global.csv")
+covid_US <- read_csv("time_series_covid19_confirmed_US.csv")
+```
+
+Now we need to view our data and decide on what to do with it! 
+
+```{r Viewing our data}
+head(covid_US)
+```
+The data contains information about the location and for each location, a time series (data indexed by a time/date) for the number of confirmed Covid-19 cases between January 1st, 2020 and November 28th, 2020. Before we do anything more, we always want to convert the data into a *tidy* format. Tidy data has each variable stored in an individual column and each observation in its own row. Our data frame has many measurements for the number of cases across the rows and must therefore be transformed into tidy form. To do so we use the gather function. It is incredibly powerful because it lets us map each column into a row with the use of key-value pairings. The idea is that we want each row to contain the country, province, city, date, *and* the number of confirmed cases. Having data in that format will allow us to group it together based on the different levels and aggregate as needed. The code is shown below
+```{r}
+infected_data_tidy <- covid_US %>% 
+     gather(date_stamp, num_infect,'1/22/20':'11/28/20') %>% 
+     rename(Province = `Province_State`, Country = `Country_Region`, City = `Admin2`) %>% 
+     select(Country, Province, date_stamp, num_infect) %>% 
+     group_by(Province)
+```
+We also want to change the data type to be a date. The lubridate package (part of the tidyverse package) helps us do that with the various date formats (month-day-year in this case). 
+```{r}
+# change strings to dates
+infected_data_tidy$date_stamp <- lubridate::mdy(infected_data_tidy$date_stamp) 
+```
+
+```{r}
+# we want to aggregate data on a country scale for summary purposes
+infected_summary <- infected_data_tidy %>%
+     group_by(date_stamp) %>% 
+     summarise(total = sum(num_infect))
+tail(infected_summary) # a variant of head
+```
+
+Someone mentioned that we should find the date with the highest number of cases. Since the data is now sorted by the days, this can be a very simple tax of just using the built-in R function max.
+
+```{r}
+max(infected_data_tidy$num_infect) # we use the subset operation $ to select the one column we want then take the maximum 
+```
+
+Now for some plots! 
+```{r}
+infected_summary %>% ggplot(aes(x = date_stamp, y = total)) + 
+        geom_step(colour = 'red')+ 
+        scale_y_continuous(labels = comma) + 
+        labs(title = "US Totals for Covid-19",
+             x = "Date",
+             y = "Totals") +
+        theme_light()
+```
+
+```{r}
+infected_data_tidy %>% 
+        group_by(Province) %>% 
+        summarise(total_infect = sum(num_infect)) %>% 
+        arrange(desc(total_infect)) %>% 
+        top_n(10) %>% 
+        ggplot(aes(x = reorder(Province, -total_infect), y = total_infect)) + 
+                geom_bar(stat = 'identity', fill = 'royalblue') +
+                labs(title = 'Total Covid Cases', 
+                     x = 'State',
+                     y = 'Confirmed Cases') + 
+                scale_y_continuous(labels = comma) +
+                theme(axis.text.x = element_text(angle = 45)) 
+```
+
