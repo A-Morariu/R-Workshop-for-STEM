@@ -2,9 +2,7 @@
 title: "R_workshop_Feb_2021"
 author: "Alin Morariu"
 date: "25/02/2021"
-output:
-  pdf_document: default
-  html_document: default
+output: html_document
 ---
 
 # Welcome! 
@@ -142,7 +140,7 @@ Now we need to view our data and decide on what to do with it!
 ```{r Viewing our data}
 head(covid_US)
 ```
-The data contains information about the location and for each location, a time series (data indexed by a time/date) for the number of confirmed Covid-19 cases between January 1st, 2020 and November 28th, 2020. Before we do anything more, we always want to convert the data into a *tidy* format. Tidy data has a unique variable  in each column and one observation per row. Our data frame has many measurements for the number of cases across the rows and must therefore be transformed into tidy form. To do so we use the gather function. It is incredibly powerful because it lets us map each column into a row with the use of key-value pairings. The idea is that we want each row to contain the country, province, city, date, *and* the number of confirmed cases. Having data in that format will allow us to group it together based on the different levels and aggregate as needed. The code is shown below
+The data contains information about the location and for each location, a time series (data indexed by a time/date) for the number of confirmed Covid-19 cases between January 1st, 2020 and November 28th, 2020. Before we do anything more, we always want to convert the data into a *tidy* format. Tidy data has a unique variable  in each column and one observation per row. Our data frame has many measurements for the number of cases across the rows and must therefore be transformed into tidy form. To do so we use the `r gather` function. It is incredibly powerful because it lets us map each column into a row with the use of key-value pairings. The idea is that we want each row to contain the country, province, city, date, *and* the number of confirmed cases. Having data in that format will allow us to group it together based on the different levels and aggregate as needed. The code is shown below
 ```{r}
 infected_data_tidy <- covid_US %>% 
      gather(date_stamp, # this is the new column which will take values from covid_US columns
@@ -152,145 +150,121 @@ infected_data_tidy <- covid_US %>%
      rename(Province = `Province_State`, Country = `Country_Region`, City = `Admin2`) %>% 
      select(Country, Province, date_stamp, num_infect) %>% 
      group_by(Province)
+head(infected_data_tidy)
 ```
 We also want to change the dates to be of the data type instead of the strings they currently are. The lubridate package (part of the tidyverse package) helps us do that with the various date formats (month-day-year in this case). Since we only want to change a specific column, we can use the $ operator which subsets the dataframe (column-wise). 
+
 ```{r}
-# change strings to dates
-infected_data_tidy$date_stamp <- lubridate::mdy(infected_data_tidy$date_stamp) 
+# change dates from string format to datetime format
+infected_data_tidy$date_stamp <- lubridate::mdy(infected_data_tidy$date_stamp)
 ```
 
-Now that the data is formatted we can start exploring the data a bit more. This exploratory stage will often provide many answers and insights to various questions we might have about a dataset. A simple first step is to find the total Covid-19 cases in the United States for each day. 
+Total number of infections 
 ```{r}
 # we want to aggregate data on a country scale for summary purposes
 infected_summary <- infected_data_tidy %>%
      group_by(date_stamp) %>%                           # each locale has a date stamp and we want to summarize by the day
-     summarise(total = sum(num_infect))                 # aggregating function
+     summarise(total = sum(num_infect),
+               total_per_thousand = sum(num_infect)/1000,
+               avg_infected = mean(num_infect),
+               sd_infected = sd(num_infect))                 # aggregating function
 
 tail(infected_summary) # a variant of head
 ```
 
-Someone mentioned that we should find the date with the highest number of cases. Since the data is now sorted by the days, this can be a very simple tax of just using the built-in R function max. There are a few ways to do this, but one good way is to use the base R function summary which provides a 6 number summary (minimun, first quartile, median, third quartile, maximum)
-
 ```{r}
-max(infected_data_tidy$num_infect) # we use the subset operation $ to select the one column we want then take the maximum 
-print('----------------------------------------------------------------------')
+# goal: find the max number of infections in a single day
+max(infected_data_tidy$num_infect)
 
+# built in functions which help sumamrize data 
 summary(infected_data_tidy$num_infect)
-print('----------------------------------------------------------------------')
 
-# get max from summary (note that the output is a list)
-summary(infected_data_tidy$num_infect)[6]
-print('----------------------------------------------------------------------')
-
-# check that it is same as above 
-summary(infected_data_tidy$num_infect)[6] == max(infected_data_tidy$num_infect)
 ```
 
-Now for some plots! We begin with an obvious one and that is the total number of infected people. In the graph below we see the 
+Let's make some plots.
+
 ```{r}
 infected_summary %>% ggplot(aes(x = date_stamp, y = total)) + 
-        geom_line(colour = 'red')+
-        scale_y_continuous(labels = comma) + 
-        labs(title = "US Totals for Covid-19",
-             x = "Date",
-             y = "Totals") +
-        theme_grey()
+        geom_line(colour =  'maroon') + 
+        labs(title = 'US Total Number of Covid-19 Cases',
+             x = 'Date',
+             y = 'Total Confirmed Cases') + 
+        scale_y_continuous(labels = comma)
 
-infected_summary %>% ggplot(aes(x = date_stamp, y = c(0,diff(total)))) + 
-        geom_line(colour = 'maroon') +
-        geom_smooth(method = 'loess', se = TRUE) + 
-        scale_y_continuous(labels = comma) + 
-        labs(title = "US Daily Cases for Covid-19",
-             x = "Date",
-             y = "Totals") +
-        theme_light()
-        
+infected_summary %>% ggplot(aes(x = date_stamp, y = sd_infected)) + 
+        geom_line(colour =  'darkgreen') + 
+        labs(title = 'US Total Number of Covid-19 Cases',
+             x = 'Date',
+             y = 'Total Confirmed Cases') + 
+        scale_y_continuous(labels = comma)
 ```
-A common question is finding the distribution of a single variable. In our case, the distribution of the number of daily infections could be a very useful piece of information for modeling spread. Let's examine this distribution with a histogram
+
 ```{r}
-# option 1: Histogram
+infected_summary %>% ggplot(aes(x = date_stamp, y = c(0,diff(total)))) + 
+        geom_line(colour =  'maroon') + 
+        geom_smooth(method = 'loess', se = FALSE) + 
+        labs(title = 'US Daily Number of Covid-19 Cases',
+             x = 'Date',
+             y = 'Total Confirmed Cases') + 
+        scale_y_continuous(labels = comma)
+```
+
+```{r}
+# option 1: build a histogram to see distribution
 infected_summary %>% ggplot(aes(c(0,diff(total)))) + 
-        geom_histogram(bins = 50, fill = 'steelblue', colour = 'navy')+
+        geom_histogram(bins = 25, fill = 'steelblue', colour = 'navy') + 
         labs(title = 'Daily Infection Totals',
              subtitle = 'Within the USA',
              x = 'Number of Cases',
              y = 'Number of Days') +
-        scale_x_continuous(labels = comma)+
-        theme_minimal()
+        scale_x_continuous(labels = comma) +
+        theme_minimal() # theme depends on your preference
 
-# option 2: dot plot - doesn't work well IN THIS CASE but shown for completeness
+# option 2: kernel density 
 infected_summary %>% ggplot(aes(c(0,diff(total)))) + 
-        geom_dotplot(method = 'histodot', binwidth = 5000, fill = 'steelblue', colour = 'navy')+
-        labs(title = 'Daily Infection Totals',
-             subtitle = 'Within the USA',
-             x = 'Number of Cases',
-             y = 'Number of Days') +
-        scale_x_continuous(labels = comma)+
-        theme_minimal()
-
-# option 3: 
-infected_summary %>% ggplot(aes(c(0,diff(total)))) + 
-        geom_density(kernel = 'gaussian', fill = 'steelblue', colour = 'navy')+
+        geom_density(kernel = 'gaussian', fill = 'steelblue', colour = 'navy') + 
         labs(title = 'Daily Infection Totals',
              subtitle = 'Within the USA',
              x = 'Number of Cases',
              y = 'Number of Days') +
         scale_x_continuous(labels = comma) +
         scale_y_continuous(labels = comma) +
-        theme_minimal()
+        theme_minimal() # theme depends on your preference
 ```
 
-
-Since our data has state level data it would be interesting to see how the different states have been handling the pandemic. Let's try to create some plots to compare the most and least affected states. A simple way to do this is going to be with bar graphs since we can display totals 
-
 ```{r}
-infected_data_tidy %>%
-        group_by(Province) %>%
-        summarise(total_infect = sum(num_infect)) %>%
-        arrange(desc(total_infect)) %>%
-        top_n(10) %>%
-        ggplot(aes(x = reorder(Province,-total_infect), y = total_infect)) +
-        geom_bar(stat = 'identity', fill = 'royalblue') +
-        labs(title = 'Total Covid Cases on Nov 28, 2020',
-             subtitle = 'Top 10 most affected States',
+infected_data_tidy %>% 
+        group_by(Province) %>% 
+        summarise(total_infected_per_state = sum(num_infect)) %>%
+        top_n(10) %>% 
+        ggplot(aes(x = reorder(Province, -total_infected_per_state), y = total_infected_per_state)) +
+                geom_bar(stat = 'identity', fill = 'steelblue', colour = 'navy') + 
+        labs(title = 'Total number of Covid-19 cases',
+             subtitle = 'Top 10 MOST affected states',
              x = 'State',
-             y = 'Confirmed Cases') +
+             y = 'Number of Confirmed Cases') +
         scale_y_continuous(labels = comma) +
+        theme_minimal() +
         theme(axis.text.x = element_text(angle = 45))
 
-infected_data_tidy %>%
-        group_by(Province) %>%
-        summarise(total_infect = sum(num_infect)) %>%
-        arrange(desc(total_infect)) %>%
-        top_n(-10) %>%
-        ggplot(aes(x = reorder(Province, -total_infect), y = total_infect)) +
-        geom_bar(stat = 'identity', aes(fill = total_infect)) +
-        labs(title ='Total Covid Cases on Nov 28, 2020',
-             subtitle = 'Top 10 least affected States',
+infected_data_tidy %>% 
+        group_by(Province) %>% 
+        summarise(total_infected_per_state = sum(num_infect)) %>%
+        top_n(-10) %>% 
+        ggplot(aes(x = reorder(Province, -total_infected_per_state), y = total_infected_per_state)) +
+                geom_bar(stat = 'identity', fill = 'steelblue', colour = 'navy') + 
+        labs(title = 'Total number of Covid-19 cases',
+             subtitle = 'Top 10 LEAST affected states',
              x = 'State',
-             y = 'Confirmed Cases') +
+             y = 'Number of Confirmed Cases') +
         scale_y_continuous(labels = comma) +
-        scale_fill_gradient(low = "blue", high = "purple") +
-        theme(axis.text.x = element_text(angle = 45)) 
-```
-
-Another way to compare this is with faceting. As per the ggplot2 cheatsheet: Facets divide a plot into subplots based on the values of one or more discrete variables.
-
-```{r}
-# option 1: side by side
-infected_data_tidy %>% ggplot(aes(x = date_stamp, num_infect)) + 
-        geom_line(colour = 'maroon') + 
-        facet_grid(~Province) + 
-        scale_y_continuous(labels = comma) + 
-        labs(title = "US Total case per State for Covid-19",
-             x = "Date",
-             y = "Totals") +
-        theme_light()
+        theme_minimal() +
+        theme(axis.text.x = element_text(angle = 45))
 ```
 
 ```{r}
-# option 2: wraping
-infected_data_tidy %>% ggplot(aes(date_stamp, num_infect)) + 
+infected_data_tidy %>%
+        ggplot(aes(date_stamp, num_infect)) + 
         geom_line(colour = 'maroon') + 
         facet_wrap(~Province) + 
         scale_y_continuous(labels = comma) + 
