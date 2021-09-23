@@ -1,0 +1,97 @@
+---
+title: "Data Visualizatio in R"
+author: "Alin Morariu"
+date: "20/09/2021"
+output: html_document
+---
+
+R is open sourced software/computing language. 
+
+```{r}
+# install.packages(tidyverse) - ONLY INSTALL PACKAGES ONCE
+library(tidyverse)  # LOAD PACKAGES FOR EVERY FILE - to load a package call it with the library command
+library(lubridate)
+library(scales)
+```
+
+```{r}
+head(time_series_covid19_confirmed_global)
+tail(time_series_covid19_confirmed_global)
+```
+
+Turn our data into a tidy format. 
+
+```{r}
+infected_data_tidy <- time_series_covid19_confirmed_global %>% 
+     gather(date_stamp, # this is new column which will take values from the original dataset columns, 
+            num_infect, # a new value representing the number of confirmed/infected covid cases
+            '1/22/20':'9/19/21') %>% 
+     select(Country = 'Country/Region', Province = 'Province/State', date = 'date_stamp', num_infect = 
+                 num_infect)
+
+infected_data_tidy$date <- lubridate::mdy(infected_data_tidy$date)
+tail(infected_data_tidy, 10)
+```
+
+Now that we have data that is clean, we can move on to create some useful/interesting summaries. 
+
+```{r Summarize data}
+infected_data_tidy %>% summarise(max(num_infect))
+```
+
+```{r}
+infected_data_tidy %>% filter(num_infect == 42087432)
+```
+
+So let's build a summary table 
+```{r}
+infected_data_tidy %>% summarise(Min = min(num_infect),
+                                 Max = max(num_infect),
+                                 Avg = mean(num_infect),
+                                 Median = median(num_infect), 
+                                 Std_dev = sd(num_infect))
+```
+
+We can also go deeper and be more granular. 
+
+```{r}
+infected_data_tidy %>% 
+     group_by(Country) %>% 
+     summarise(Min = min(num_infect),
+                                 Max = max(num_infect),
+                                 Avg = mean(num_infect),
+                                 Median = median(num_infect), 
+                                 Std_dev = sd(num_infect)) %>% 
+     filter(Country == c( 'United Kingdom'))
+```
+
+```{r}
+infected_data_tidy %>% 
+     group_by(date) %>% 
+     summarise(Min = min(num_infect),
+               Max = max(num_infect),
+               Avg = mean(num_infect),
+               Infect = sum(num_infect),
+               Median = median(num_infect), 
+               Std_dev = sd(num_infect))
+```
+
+```{r}
+infected_data_tidy %>% 
+     group_by(date) %>% 
+     summarise(Min = min(num_infect),
+               Max = max(num_infect),
+               Avg = mean(num_infect),
+               Infect = sum(num_infect),
+               Median = median(num_infect), 
+               Std_dev = sd(num_infect)) %>% # create a dataframe and push throug the plotting
+     ggplot() + 
+     aes(x = date) + 
+     aes(ymin = Min) + 
+     aes(yavg = Avg) + 
+     aes(ymax = Max) + 
+     geom_hline(yintercept = 0, col = "grey") + 
+     geom_ribbon(alpha = .2) + 
+     geom_line(aes(y = Infect))
+```
+

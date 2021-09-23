@@ -1,0 +1,64 @@
+---
+title: "Data Visualization with R"
+author: "Alin Morariu"
+date: "20/09/2021"
+output: html_document
+---
+```{r}
+# preamble - section to load all packages 
+library(tidyverse)
+```
+
+```{r Load Data}
+time_series_covid19_confirmed_global <- read_csv("time_series_covid19_confirmed_global.csv")
+# preview data 
+head(confirmed_cases_global)
+```
+
+```{r}
+# reshape 
+infected_data_tidy <- time_series_covid19_confirmed_global %>% 
+     gather(date_stamp, # this is the new column which will take values from covid_US columns
+            num_infect, # this is the new value 
+            '1/22/20':'8/19/21' # the columns we're getting values from
+            ) %>% 
+     rename(Province = `Province/State`, Country = `Country/Region`) %>% 
+     select(Country, Province, date_stamp, num_infect) %>% 
+     group_by(Country)
+
+# change strings to dates
+infected_data_tidy$date_stamp <- lubridate::mdy(infected_data_tidy$date_stamp)
+
+tail(infected_data_tidy)
+```
+
+Now to gain some insight with some summary tables 
+```{r Summaries}
+# what types of questions can we answer with summaries? 
+# here are some examples 
+
+# 1. min/max
+infected_data_tidy %>% summarise(max(num_infect))
+#infected_data_tidy %>% summarise(min(num_infect))
+# 2. mean/median
+infected_data_tidy %>% summarise(mean(num_infect))
+#infected_data_tidy %>% summarise(median(num_infect))
+
+# 3. measures of spread 
+infected_data_tidy %>% summarise(IQR(num_infect), sd(num_infect))
+```
+
+```{r Deriving new information}
+infected_summary <- infected_data_tidy %>%
+     group_by(date_stamp) %>%                           # each locale has a date stamp and we want to summarize by the day
+     summarise(total = sum(num_infect))                 # aggregating function
+
+tail(infected_summary) # a variant of head
+
+infected_data_tidy %>% 
+     filter(Country == 'Canada') %>% # each locale has a date stamp and we want to
+     group_by(Province) %>% 
+     summarize(mean(num_infect))
+     
+```
+
