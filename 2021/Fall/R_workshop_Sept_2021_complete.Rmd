@@ -152,6 +152,7 @@ infected_data_tidy %>%
      filter(Country %in% c('Canada', 'Iran', 'United Kingdom', 'US')) %>% 
      arrange(desc(Avg))
 ```
+
 ### Grouped Summaries
 One of the most powerful tools within dplyr is the `group_by` function because it allows you to do calculations on subsections within the data. In our case, we can group our data by the country, province, or date and summarize it accordingly. 
 ```{r}
@@ -164,6 +165,9 @@ infected_data_tidy %>%
                Median = median(num_infect), 
                Std_dev = sd(num_infect))
 ```
+
+## Section 2 
+
 ### Combining Datasets 
 Another useful action is combining datasets. So far we have only seen the number of infected but we also have datasets for the number of deaths and recoveries. Let's load those in as well. 
 
@@ -212,7 +216,8 @@ complete_data %>%
 #      scale_y_continuous(labels = comma) 
 ```
 
-## Making plots 
+## Section 3
+### Making plots 
 ggplot works by layering different parts of a plot. Starting with the data, you lay down the X and Y axis (potentially Z), and keep adding elements to finish the plot. This first example will be done very slowly, then we will combine several lines to make it faster. 
 
 ```{r}

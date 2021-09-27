@@ -154,3 +154,4 @@ infected_data_tidy %>%
 ```
 ### Grouped Summaries
 One of the most powerful tools within dplyr is the `group_by` function because it allows you to do calculations on subsections within the data. In our case, we can group our data by the country, province, or date and summarize it accordingly. 
+
