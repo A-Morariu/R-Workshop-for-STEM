@@ -261,6 +261,10 @@ complete_data %>%
 
 ```{r}
 # what about daily counts?
+```
+
+
+```{r}
 complete_data %>%
      filter(Country %in% c('Canada')) %>%
      group_by(date) %>%

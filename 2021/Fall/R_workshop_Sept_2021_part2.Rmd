@@ -142,16 +142,245 @@ infected_data_tidy %>% summarise(Min = min(num_infect),
 ```
 We can also go deeper and be more granular. 
 ```{r}
-infected_data_tidy %>% 
-     group_by(Country) %>% 
-     summarise(Min = min(num_infect),
-                                 Max = max(num_infect),
-                                 Avg = mean(num_infect),
-                                 Median = median(num_infect), 
-                                 Std_dev = sd(num_infect)) %>% 
-     filter(Country %in% c('Canada', 'Iran', 'United Kingdom', 'US')) %>% 
-     arrange(desc(Avg))
+infected_data_tidy %>%
+        group_by(Country) %>%
+        summarise(
+                Min = min(num_infect),
+                Max = max(num_infect),
+                Avg = mean(num_infect),
+                Median = median(num_infect),
+                Std_dev = sd(num_infect)
+        ) %>%
+        filter(Country %in% c('Canada', 'Iran', 'United Kingdom', 'US')) %>%
+        arrange(desc(Avg)) # a useful trick 
 ```
+
 ### Grouped Summaries
 One of the most powerful tools within dplyr is the `group_by` function because it allows you to do calculations on subsections within the data. In our case, we can group our data by the country, province, or date and summarize it accordingly. 
+
+## Section 2 
+
+### Combining Datasets 
+Another useful action is combining datasets. So far we have only seen the number of infected but we also have datasets for the number of deaths and recoveries. Let's load those in as well. 
+
+```{r}
+death_data_tidy <- read_csv("time_series_covid19_deaths_global.csv")  %>% 
+     gather(date_stamp, # this is new column which will take values from the original dataset columns, 
+            num_dead, # a new value representing the number of confirmed/infected covid cases
+            '1/22/20':'9/19/21') %>% 
+     select(Country = 'Country/Region', Province = 'Province/State', date = 'date_stamp', num_dead = 
+                 num_dead)
+tail(death_data_tidy)
+```
+
+```{r}
+death_data_tidy$date <- lubridate::mdy(death_data_tidy$date)
+
+tail(death_data_tidy)
+```
+
+```{r}
+complete_data <- full_join(infected_data_tidy, death_data_tidy) %>% 
+        group_by(Country) %>% 
+        mutate(num_recovered = num_infect - num_dead,
+               mortality_rate = num_dead/num_infect,
+               days = date - first(date) + 1 )
+
+tail(complete_data)
+```
+
+Often times we need to construct custom data frames to generate plots we are interested in. Say we want to map the daily case counts for Canada as a country. 
+```{r}
+complete_data %>% 
+        filter(Country %in% c('Canada')) %>% 
+        group_by(date) %>% 
+        summarise(Country = last(Country),
+                  total_infect = sum(num_infect),
+                  total_deaths = sum(num_dead), 
+                  total_recovered = sum(num_recovered),
+                  days = last(days))
+```
+
+## Section 3
+### Making plots 
+ggplot works by layering different parts of a plot. Starting with the data, you lay down the X and Y axis (potentially Z), and keep adding elements to finish the plot. This first example will be done very slowly, then we will combine several lines to make it faster. 
+
+```{r}
+complete_data %>% 
+        filter(Country %in% c('Canada')) %>% 
+        group_by(date) %>% 
+        summarise(Country = last(Country),
+                  total_infect = sum(num_infect),
+                  total_deaths = sum(num_dead), 
+                  total_recovered = sum(num_recovered),
+                  days = last(days)) %>% 
+        # this is how every plot starts! First few lines set up coordinate system
+        ggplot() +
+        aes(x = date) + 
+        aes(y = total_infect) + 
+        # these map out the data on the coordinates we laid down
+        geom_line() + 
+        # now for some formatting 
+        labs(x = 'Date') + 
+        labs(y = 'Number of Cases') + 
+        labs(title = 'Total Covid-19 Cases in Canada') + 
+        labs(subtitle = 'Confirmed Covid-19 cases in Canada based on Health Canada counts') + 
+        scale_y_continuous(labels = comma) + 
+        theme_minimal()
+```
+
+```{r}
+complete_data %>% 
+        filter(Country %in% c('Canada')) %>% 
+        group_by(date) %>% 
+        summarise(Country = last(Country),
+                  total_infect = sum(num_infect),
+                  total_deaths = sum(num_dead), 
+                  total_recovered = sum(num_recovered),
+                  days = last(days)) %>% 
+        # this is how every plot starts! First few lines set up coordinate system
+        ggplot() +
+        aes(x = date) + 
+        aes(y = c(0, diff(total_infect))) + 
+        # these map out the data on the coordinates we laid down
+        geom_line() + 
+        # now for some formatting 
+        labs(x = 'Date') + 
+        labs(y = 'Number of Cases') + 
+        labs(title = 'Total Covid-19 Cases in Canada') + 
+        labs(subtitle = 'Confirmed Covid-19 cases in Canada based on Health Canada counts') + 
+        scale_y_continuous(labels = comma) + 
+        theme_light()
+```
+
+
+```{r}
+# compact version
+complete_data %>% 
+     filter(Country %in% c('Canada')) %>%
+     group_by(date) %>% 
+     summarise(Country = last(Country),
+               cum_infect = sum(num_infect),
+               cum_dead = sum(num_dead), 
+               cum_recovered = sum(num_recovered),
+               days = last(days)) %>%
+     ggplot(aes(x= date, y = cum_infect)) + 
+     geom_line(linetype = 'longdash', colour = 'green') + 
+     labs(x = 'Date', y = 'Number of Cases', 
+          title = 'Cumulative Covid-19 Cases in Canada', 
+          subtitle = 'Confirmed Covid-19 cases in Canada based on Health Canada counts') + 
+     scale_y_continuous(labels = comma) +
+     theme_dark()
+```
+
+```{r}
+complete_data %>%
+        filter(Country %in% c('Canada')) %>%
+        group_by(date) %>%
+        summarise(
+                Country = last(Country),
+                total_infect = sum(num_infect),
+                total_deaths = sum(num_dead),
+                total_recovered = sum(num_recovered),
+                days = last(days)
+        ) %>%
+        ggplot(aes(x = date)) +
+        geom_line(aes(y = c(0, diff(total_infect))), linetype = 'solid') +
+        geom_smooth(aes(y = c(0, diff(total_infect))),
+                    span = 0.2,
+                    se = FALSE,
+                    linetype = 'longdash') +
+        geom_vline(
+                xintercept = as_date('2021-07-16'),
+                linetype = 'dashed',
+                colour = 'red'
+        ) + 
+        geom_text(aes(x = as_date('2021-07-16'), y = 9000, label = 'day I graduated'),
+                  colour = 'red',
+                  angle = 90,
+                  vjust = -1,
+                  text = element_text(size = 11)) + 
+        labs(x = 'Date', y = 'Number of Cases', 
+             title = 'Cumulative Covid-19 Cases in Canada', 
+             subtitle = 'Confirmed Covid-19 cases in Canada based on Health Canada counts') + 
+        scale_y_continuous(labels = comma) +
+        theme_bw()
+```
+
+```{r}
+complete_data %>%
+     filter(Country %in% c('Canada'), 
+            Province %in% c("Alberta", 'British Columbia', "Ontario", 'Quebec')
+            ) %>% 
+     ggplot() + 
+     aes(x = date) +
+     geom_line(aes( y = num_infect, colour = 'Infected')) +
+     geom_line(aes(y = num_dead, colour = 'Dead')) + 
+     scale_color_manual(name = 'Legend', 
+                        values = c('Infected' = 'red',
+                                   'Dead' = 'black')) + 
+     facet_wrap(~ Province) + 
+     geom_vline(
+          xintercept = as_date('2021-07-17'),
+          linetype = 4,
+          colour = 'darkgreen',
+          show.legend =  TRUE
+     ) +
+        labs(
+          x = 'Date',
+          y = 'Number of Cases',
+          title = 'Covid-19 Cases in Canada',
+          subtitle = 'Confirmed Covid-19 cases per day in Canada based on Health Canada counts'
+     ) +
+     scale_y_continuous(labels = comma) +
+     theme_light()
+```
+
+```{r}
+complete_data %>%
+        filter(Country %in% c('Canada', 'Iran', 'United Kingdom', 'Argentina', 'South Africa')) %>%
+        summarise(total_cases = max(num_infect)) %>%
+        ggplot(aes(x = fct_reorder(Country, total_cases), y = total_cases, fill = total_cases)) +
+        geom_col() +
+        labs(
+                x = 'Country',
+                y = 'Number of Cases',
+                title = 'Total Covid-19 Cases Counts',
+                subtitle = 'Confirmed Total Covid-19 cases in several countries'
+        ) +
+        scale_y_continuous(labels = comma) +
+        scale_fill_gradient(high="red", low="yellow") + 
+        coord_flip() + 
+        theme_light()
+```
+
+```{r}
+complete_data %>%
+        filter(Country %in% c('Canada', 'Iran', 'United Kingdom', 'Argentina', 'South Africa')) %>%
+        group_by(date, Country) %>%
+        summarize(
+                total_infect = sum(num_infect),
+                total_dead = sum(num_dead),
+                mortality_rate = total_dead / total_infect,
+                days = last(days)
+        ) %>%
+        ggplot() +
+        aes(x = Country) +
+        aes(y = total_infect) +
+        geom_jitter(alpha = .8,
+                    height = 0,
+                    width = .25) +
+        aes(col = mortality_rate) +
+        geom_boxplot(alpha = 0.25) +
+        aes(fill = Country) +
+        labs(
+                x = 'Country',
+                y = 'Number of Cases',
+                title = 'Boxplots for Covid-19 Cases Counts',
+                subtitle = 'Confirmed Total Covid-19 cases in several countries'
+        ) +
+        scale_y_continuous(labels = comma) +
+        coord_flip() +
+        theme_light()
+```
 
